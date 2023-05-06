@@ -1,5 +1,5 @@
 /** -----------------------------------------------------------------------
- * @module [DXF]
+ * @module [apg-dxf]
  * @author [APG] ANGELI Paolo Giusto
  * @credits https://github.com/ognjen-petrovic/js-dxf#readme
  * @version 0.5.1 [APG 2019/01/16]
@@ -7,50 +7,49 @@
  * -----------------------------------------------------------------------
  */
 import { IApgDxfLayer } from '../interfaces/IApgDxfLayer.ts';
+import { IApgDxfShape } from '../interfaces/IApgDxfShape.ts';
 
-/**
- * Text
+/** 
+ * Apg Dxf Arc
  */
-export class ApgDxfText {
-
+export class ApgDxfArc implements IApgDxfShape {
     layer: IApgDxfLayer;
     x1: number;
     y1: number;
-    height: number;
-    rotation: number;
-    value: string;
-
+    r: number;
+    startAngle: number;
+    endAngle: number;
 
     /**
-     * @param {number} x1 - x
-     * @param {number} y1 - y
-     * @param {number} height - Text height
-     * @param {number} rotation - Text rotation
-     * @param {string} value - the string itself
+     * @param {IApgDxfLayer} layer
+     * @param {number} x1 - Center x
+     * @param {number} y1 - Center y
+     * @param {number} r - radius
+     * @param {number} startAngle - degrees
+     * @param {number} endAngle - degrees
      */
     constructor(
         layer: IApgDxfLayer,
         x1: number,
         y1: number,
-        height: number,
-        rotation: number,
-        value: string
+        r: number,
+        startAngle: number,
+        endAngle: number
     ) {
         this.layer = layer;
         this.x1 = x1;
         this.y1 = y1;
-        this.height = height;
-        this.rotation = rotation;
-        this.value = value;
+        this.r = r;
+        this.startAngle = startAngle;
+        this.endAngle = endAngle;
     }
 
     toDxfString() {
-        // https://www.autodesk.com/techpubs/autocad/acadr14/dxf/text_al_u05_c.htm
-        let s = `0\nTEXT\n`;
+        // https://www.autodesk.com/techpubs/autocad/acadr14/dxf/line_al_u05_c.htm
+        let s = `0\nARC\n`;
         s += `8\n${this.layer.name}\n`;
-        s += `1\n${this.value}\n`;
         s += `10\n${this.x1}\n20\n${this.y1}\n30\n0\n`;
-        s += `40\n${this.height}\n50\n${this.rotation}\n`;
+        s += `40\n${this.r}\n50\n${this.startAngle}\n51\n${this.endAngle}\n`;
         return s;
     }
 }

@@ -1,15 +1,13 @@
 /** -----------------------------------------------------------------------
- * @module [DXF]
+ * @module [apg-dxf]
  * @author [APG] ANGELI Paolo Giusto
  * @credits https://github.com/ognjen-petrovic/js-dxf#readme
  * @version 0.5.1 [APG 2019/01/16]
  * @version 0.8.0 [APG 2022/04/03] Porting to Deno
+ * @version 0.9.7 [APG 2023/04/06] Moved to its own module + separation of concers lib/srv
  * -----------------------------------------------------------------------
  */
-import {
-  Apg2DLine,
-  Apg2DPoint
-} from '../../../2D/mod.ts';
+import { A2D } from '../../deps.ts';
 
 import { ApgDxfAngularDim } from "./ApgDxfAngularDim.ts";
 import { ApgDxfArc } from "./ApgDxfArc.ts";
@@ -285,17 +283,17 @@ export class ApgDxfDrawing {
     points.push([x1, y1]);
     points.push([x2, y2]);
 
-    const p1 = new Apg2DPoint(x1, y1);
-    const p2 = new Apg2DPoint(x2, y2);
-    const l = new Apg2DLine(p1, p2);
+    const p1 = new A2D.Apg2DPoint(x1, y1);
+    const p2 = new A2D.Apg2DPoint(x2, y2);
+    const l = new A2D.Apg2DLine(p1, p2);
 
-    const ladderPerp = l.Perpendicular(p2);
-    const ladderP = ladderPerp.PointAtTheDistanceFromPoint(p2, d);
+    const ladderPerp = l.perpendicular(p2);
+    const ladderP = ladderPerp.pointAtDistanceFromPoint(p2, d);
     points.push([ladderP!.x, ladderP!.y]);
 
-    const midP: Apg2DPoint = p1.HalfwayFrom(p2);
-    const perp: Apg2DLine = l.Perpendicular(midP);
-    const textP = perp.PointAtTheDistanceFromPoint(midP, d);
+    const midP: A2D.Apg2DPoint = p1.halfwayFrom(p2);
+    const perp: A2D.Apg2DLine = l.perpendicular(midP);
+    const textP = perp.pointAtDistanceFromPoint(midP, d);
     points.push([textP!.x, textP!.y]);
 
     const shape = new ApgDxfLinearDim(this.activeLayer, points, eApgDxfDimensionTypes.ROTATED)
@@ -315,17 +313,17 @@ export class ApgDxfDrawing {
     points.push([x1, y1]);
     points.push([x2, y2]);
 
-    const p1 = new Apg2DPoint(x1, y1);
-    const p2 = new Apg2DPoint(x2, y2);
-    const l = new Apg2DLine(p1, p2);
+    const p1 = new A2D.Apg2DPoint(x1, y1);
+    const p2 = new A2D.Apg2DPoint(x2, y2);
+    const l = new A2D.Apg2DLine(p1, p2);
 
-    const ladderPerp = l.Perpendicular(p2);
-    const ladderP = ladderPerp.PointAtTheDistanceFromPoint(p2, d);
+    const ladderPerp = l.perpendicular(p2);
+    const ladderP = ladderPerp.pointAtDistanceFromPoint(p2, d);
     points.push([ladderP!.x, ladderP!.y]);
 
-    const midP: Apg2DPoint = p1.HalfwayFrom(p2);
-    const perp: Apg2DLine = l.Perpendicular(midP);
-    const textP = perp.PointAtTheDistanceFromPoint(midP, d);
+    const midP: A2D.Apg2DPoint = p1.halfwayFrom(p2);
+    const perp: A2D.Apg2DLine = l.perpendicular(midP);
+    const textP = perp.pointAtDistanceFromPoint(midP, d);
     points.push([textP!.x, textP!.y]);
 
     const shape = new ApgDxfLinearDim(this.activeLayer, points, eApgDxfDimensionTypes.ALIGNED);
@@ -345,9 +343,9 @@ export class ApgDxfDrawing {
     points.push([x1, y1]);
     points.push([x2, y2]);
 
-    const p1 = new Apg2DPoint(x1, y1);
-    const p2 = new Apg2DPoint(x2, y2);
-    const midP: Apg2DPoint = p1.HalfwayFrom(p2);
+    const p1 = new A2D.Apg2DPoint(x1, y1);
+    const p2 = new A2D.Apg2DPoint(x2, y2);
+    const midP: A2D.Apg2DPoint = p1.halfwayFrom(p2);
 
     points.push([midP.x, midP.y]);
 
@@ -368,9 +366,9 @@ export class ApgDxfDrawing {
     points.push([cx, cy]);
     points.push([x2, y2]);
 
-    const p1 = new Apg2DPoint(cx, cy);
-    const p2 = new Apg2DPoint(x2, y2);
-    const midP: Apg2DPoint = p1.HalfwayFrom(p2);
+    const p1 = new A2D.Apg2DPoint(cx, cy);
+    const p2 = new A2D.Apg2DPoint(x2, y2);
+    const midP: A2D.Apg2DPoint = p1.halfwayFrom(p2);
 
     points.push([midP.x, midP.y]);
 
@@ -401,24 +399,24 @@ export class ApgDxfDrawing {
 
     points.push([x1, y1]);
     points.push([x2, y2]);
-    const p1 = new Apg2DPoint(x1, y1);
-    const p2 = new Apg2DPoint(x2, y2);
-    const l1 = new Apg2DLine(p1, p2);
+    const p1 = new A2D.Apg2DPoint(x1, y1);
+    const p2 = new A2D.Apg2DPoint(x2, y2);
+    const l1 = new A2D.Apg2DLine(p1, p2);
 
     points.push([x3, y3]);
     points.push([x4, y4]);
-    const p3 = new Apg2DPoint(x3, y3);
-    const p4 = new Apg2DPoint(x4, y4);
-    const l2 = new Apg2DLine(p3, p4);
+    const p3 = new A2D.Apg2DPoint(x3, y3);
+    const p4 = new A2D.Apg2DPoint(x4, y4);
+    const l2 = new A2D.Apg2DLine(p3, p4);
 
-    const cp = <Apg2DPoint>l1.Intersection(l2);
+    const cp = <A2D.Apg2DPoint>l1.intersection(l2);
 
-    const bis = l1.Bisector(l2);
-    const p5 = new Apg2DPoint(mx, my);
-    const l3 = new Apg2DLine(cp, p5);
+    const bis = l1.bisector(l2);
+    const p5 = new A2D.Apg2DPoint(mx, my);
+    const l3 = new A2D.Apg2DLine(cp, p5);
 
     const d = l3.length;
-    const p = bis.PointAtTheDistanceFromPoint(cp, d);
+    const p = bis.pointAtDistanceFromPoint(cp, d);
     points.push([p!.x, p!.y]);
     points.push([p!.x, p!.y]);
 

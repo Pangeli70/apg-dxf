@@ -1,5 +1,5 @@
 /** -----------------------------------------------------------------------
- * @module [DXF]
+ * @module [apg-dxf]
  * @author [APG] ANGELI Paolo Giusto
  * @credits https://github.com/ognjen-petrovic/js-dxf#readme
  * @version 0.5.1 [APG 2019/01/16]
@@ -7,16 +7,17 @@
  * -----------------------------------------------------------------------
  */
 import { IApgDxfLayer } from '../interfaces/IApgDxfLayer.ts';
+import { IApgDxfShape } from '../interfaces/IApgDxfShape.ts';
 import { eApgDxfDimensionTypes } from '../enums/eApgDxfDimensionTypes.ts';
 
-/**
- * Linear Dim
+/** 
+ * Angular Dimension
  */
-export class ApgDxfLinearDim {
-
+export class ApgDxfAngularDim implements IApgDxfShape {
+    
     layer: IApgDxfLayer;
     points: number[][];
-    type: eApgDxfDimensionTypes = eApgDxfDimensionTypes.ALIGNED;
+    type: eApgDxfDimensionTypes = eApgDxfDimensionTypes.ANGULAR;
     value = '<>';
 
 
@@ -31,7 +32,7 @@ export class ApgDxfLinearDim {
     ) {
         this.layer = layer;
         this.points = points;
-        if (type === eApgDxfDimensionTypes.ALIGNED || type === eApgDxfDimensionTypes.ROTATED) {
+        if (type === eApgDxfDimensionTypes.ANGULAR) {
             this.type = type;
         }
         if (value) {
@@ -45,29 +46,28 @@ export class ApgDxfLinearDim {
         let d = '';
         // begin
         d += '0\nDIMENSION\n';
-        // Handle @todo_9 let this be assigned by CAD
-        d += '  5\n6E\n';
-        // Layer's name
-        d += `  8\n${this.layer.name}\n`;
-        // Line type
-        d += '  6\nBYLAYER\n';
-        // Name of the block @todo_9 let this be assigned by CAD
-        d += '  2\n*D0\n';
-        // text value
-        d += `  1\n${this.value}\n`;
-        // Position point of the dimension in WCS
-        d += ` 10\n${this.points[2][0]}\n 20\n${this.points[2][1]}\n`;
-        // Text point in OCS
-        d += ` 11\n${this.points[3][0]}\n 21\n${this.points[3][1]}\n`;
         // Dimension type
         d += ` 70\n${this.type}\n`;
         // Dimension style name
         d += '  3\nSTANDARD\n';
-        // first point in WCS
-        d += `13\n${this.points[0][0]}\n23\n${this.points[0][1]}\n`;
-        // second point in WCS
-        d += `14\n${this.points[1][0]}\n24\n${this.points[1][1]}\n`;
-
+        // Layer's name
+        d += `  8\n${this.layer.name}\n`;
+        // Line type
+        d += '  6\nBYLAYER\n';
+        // text value
+        d += `  1\n${this.value}\n`;
+        // First point of first segment in WCS
+        d += ` 10\n${this.points[0][0]}\n 20\n${this.points[0][1]}\n`;
+        // Second point of first segment in WCS
+        d += ` 15\n${this.points[1][0]}\n25\n${this.points[1][1]}\n`;
+        // First point of second segment in WCS
+        d += ` 14\n${this.points[2][0]}\n 24\n${this.points[2][1]}\n`;
+        // Second point of second segment in WCS
+        d += ` 13\n${this.points[3][0]}\n23\n${this.points[3][1]}\n`;
+        // Distance point in WCS
+        d += ` 16\n${this.points[4][0]}\n26\n${this.points[4][1]}\n`;
+        // Text point in OCS
+        d += ` 11\n${this.points[5][0]}\n 21\n${this.points[5][1]}\n`;
 
         return d;
     }

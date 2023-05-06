@@ -1,38 +1,33 @@
 /** -----------------------------------------------------------------------
- * @module [DXF]
+ * @module [apg-dxf]
  * @author [APG] ANGELI Paolo Giusto
  * @credits https://github.com/ognjen-petrovic/js-dxf#readme
  * @version 0.5.1 [APG 2019/01/26]
  * @version 0.8.0 [APG 2022/04/15] Porting to Deno
+ * @version 0.9.7 [APG 2023/04/06] Moved to its own module + separation of concers lib/srv
  * -----------------------------------------------------------------------
  */
 
-import { 
-  ApgUtils 
-} from '../../Utils/mod.ts';
-
-import { 
-  Apg2DLine, 
-  Apg2DPoint 
-} from '../../2D/mod.ts';
+import { Uts, A2D } from "../../deps.ts"
 
 import {
   ApgDxfDrawing,
   eApgDxfDftLineStyles,
   eApgDxfStdColors
-} from '../mod.ts';
+} from "../../mod.ts"
 
-export class ApgDxfTester {
+export class ApgDxfSpec extends Uts.ApgUtsSpecable {
 
   private _outputPath = '';
 
   constructor(apath: string) {
+    super(import.meta.url);
     this._outputPath = apath;
   }
 
 
   private _save(adxf: string, atestname: string, aisProd = true) {
-    
+
     // in production we don't have write permissions
     if (!aisProd) {
 
@@ -43,6 +38,7 @@ export class ApgDxfTester {
     }
 
   }
+
 
   private _testLayers() {
     const dxf = new ApgDxfDrawing();
@@ -238,9 +234,9 @@ export class ApgDxfTester {
       const y2 = Math.random() * maxxy - maxxy / 2;
       const j = Math.floor(Math.random() * strings.length);
 
-      const p1 = new Apg2DPoint(x1, y1);
-      const p2 = new Apg2DPoint(x2, y2);
-      const line = new Apg2DLine(p1, p2);
+      const p1 = new A2D.Apg2DPoint(x1, y1);
+      const p2 = new A2D.Apg2DPoint(x2, y2);
+      const line = new A2D.Apg2DLine(p1, p2);
 
 
       dxf.drawText(x1, y1, line.length / strings[j].length, line.slope, strings[j]);
@@ -312,11 +308,11 @@ export class ApgDxfTester {
       dxf.setLayer('3');
       dxf.drawLine(cx, cy, x2, y2);
 
-      const pc = new Apg2DPoint(cx, cy);
-      const p2 = new Apg2DPoint(x2, y2);
-      const l = new Apg2DLine(pc, p2);
-      const pc1 = l.PointAtTheDistanceFromPoint(pc, r);
-      const pc2 = l.PointAtTheDistanceFromPoint(pc, -r);
+      const pc = new A2D.Apg2DPoint(cx, cy);
+      const p2 = new A2D.Apg2DPoint(x2, y2);
+      const l = new A2D.Apg2DLine(pc, p2);
+      const pc1 = l.pointAtDistanceFromPoint(pc, r);
+      const pc2 = l.pointAtDistanceFromPoint(pc, -r);
 
       dxf.setLayer('2');
       dxf.drawDiameterDim(pc1!.x, pc1!.y, pc2!.x, pc2!.y);
@@ -347,11 +343,11 @@ export class ApgDxfTester {
       dxf.setLayer('3');
       dxf.drawLine(cx, cy, x2, y2);
 
-      const pc = new Apg2DPoint(cx, cy);
-      const p2 = new Apg2DPoint(x2, y2);
-      const l = new Apg2DLine(pc, p2);
-      const pc1 = l.PointAtTheDistanceFromPoint(pc, r);
-      const pc2 = l.PointAtTheDistanceFromPoint(pc, -r);
+      const pc = new A2D.Apg2DPoint(cx, cy);
+      const p2 = new A2D.Apg2DPoint(x2, y2);
+      const l = new A2D.Apg2DLine(pc, p2);
+      const pc1 = l.pointAtDistanceFromPoint(pc, r);
+      const pc2 = l.pointAtDistanceFromPoint(pc, -r);
 
       dxf.setLayer('2');
       dxf.drawRadiousDim(pc1!.x, pc1!.y, pc2!.x, pc2!.y);
@@ -424,34 +420,38 @@ export class ApgDxfTester {
   }
 
 
-  runAllTests(aisProd: boolean) {
+  override specRunSync(arun: Uts.eApgUtsSpecRun) {
 
-    if (aisProd) {
-      return;
+    if (arun == Uts.eApgUtsSpecRun.no) {
+      return false;
     }
 
-    ApgUtils.Fs_ClearFolderSync(this._outputPath);
+    const isProduction = (1) ? true : false;
 
-    this._save(this._testLayers(), 'DxfTestLayers', aisProd);
-    this._save(this._testLineStyles(), 'DxfTestStyles', aisProd);
-    this._save(this._testDimStyles(), 'DxfTestDimStyles', aisProd);
+    Uts.ApgUtsFs.ClearFolderSync(this._outputPath);
 
-    this._save(this._testPoints(), 'DxfTestPoints', aisProd);
-    this._save(this._testLines(), 'DxfTestLines', aisProd);
-    this._save(this._testPolyLines(), 'DxfTestPolyLines', aisProd);
+    this._save(this._testLayers(), 'DxfTestLayers', isProduction);
+    this._save(this._testLineStyles(), 'DxfTestStyles', isProduction);
+    this._save(this._testDimStyles(), 'DxfTestDimStyles', isProduction);
 
-    this._save(this._testArcs(), 'DxfTestArcs', aisProd);
-    this._save(this._testCircles(), 'DxfTestCircles', aisProd);
+    this._save(this._testPoints(), 'DxfTestPoints', isProduction);
+    this._save(this._testLines(), 'DxfTestLines', isProduction);
+    this._save(this._testPolyLines(), 'DxfTestPolyLines', isProduction);
 
-    this._save(this._testTextLabels(), 'DxfTestTextLabels', aisProd);
+    this._save(this._testArcs(), 'DxfTestArcs', isProduction);
+    this._save(this._testCircles(), 'DxfTestCircles', isProduction);
 
-    this._save(this._testAlignedDims(), 'DxfTestAlignedDims', aisProd);
-    this._save(this._testRotatedDims(), 'DxfTestRotatedDims', aisProd);
-    this._save(this._testDiameterDims(), 'DxfTestDiameterDims', aisProd);
-    this._save(this._testRadiousDims(), 'DxfTestRadiousDims', aisProd);
-    this._save(this._testAngularDims(), 'DxfTestAngularDims', aisProd);
+    this._save(this._testTextLabels(), 'DxfTestTextLabels', isProduction);
 
-    this._save(this.demo(), 'DxfTestDemoDrawing', aisProd);
+    this._save(this._testAlignedDims(), 'DxfTestAlignedDims', isProduction);
+    this._save(this._testRotatedDims(), 'DxfTestRotatedDims', isProduction);
+    this._save(this._testDiameterDims(), 'DxfTestDiameterDims', isProduction);
+    this._save(this._testRadiousDims(), 'DxfTestRadiousDims', isProduction);
+    this._save(this._testAngularDims(), 'DxfTestAngularDims', isProduction);
+
+    this._save(this.demo(), 'DxfTestDemoDrawing', isProduction);
+    
+    return true;
 
   }
 

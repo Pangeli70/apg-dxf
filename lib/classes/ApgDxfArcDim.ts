@@ -1,5 +1,5 @@
 /** -----------------------------------------------------------------------
- * @module [DXF]
+ * @module [apg-dxf]
  * @author [APG] ANGELI Paolo Giusto
  * @credits https://github.com/ognjen-petrovic/js-dxf#readme
  * @version 0.5.1 [APG 2019/01/16]
@@ -10,16 +10,15 @@ import { IApgDxfLayer } from '../interfaces/IApgDxfLayer.ts';
 import { IApgDxfShape } from '../interfaces/IApgDxfShape.ts';
 import { eApgDxfDimensionTypes } from '../enums/eApgDxfDimensionTypes.ts';
 
-/** 
- * Angular Dimension
+/**
+ * Arc Dimension
  */
-export class ApgDxfAngularDim implements IApgDxfShape {
+export class ApgDxfArcDim implements IApgDxfShape {
     
     layer: IApgDxfLayer;
     points: number[][];
-    type: eApgDxfDimensionTypes = eApgDxfDimensionTypes.ANGULAR;
+    type: eApgDxfDimensionTypes = eApgDxfDimensionTypes.RADIOUS;
     value = '<>';
-
 
     /**
      * @param points Array of points [ [x1, y1], [x2, y2]... ]
@@ -30,9 +29,9 @@ export class ApgDxfAngularDim implements IApgDxfShape {
         type: eApgDxfDimensionTypes,
         value?: string
     ) {
-        this.layer = layer;
-        this.points = points;
-        if (type === eApgDxfDimensionTypes.ANGULAR) {
+        this.layer = layer,
+            this.points = points;
+        if (type === eApgDxfDimensionTypes.RADIOUS || type === eApgDxfDimensionTypes.DIAMETER) {
             this.type = type;
         }
         if (value) {
@@ -56,18 +55,12 @@ export class ApgDxfAngularDim implements IApgDxfShape {
         d += '  6\nBYLAYER\n';
         // text value
         d += `  1\n${this.value}\n`;
-        // First point of first segment in WCS
+        // First point of the dimension or center in WCS
         d += ` 10\n${this.points[0][0]}\n 20\n${this.points[0][1]}\n`;
-        // Second point of first segment in WCS
+        // Second point on the arc in WCS
         d += ` 15\n${this.points[1][0]}\n25\n${this.points[1][1]}\n`;
-        // First point of second segment in WCS
-        d += ` 14\n${this.points[2][0]}\n 24\n${this.points[2][1]}\n`;
-        // Second point of second segment in WCS
-        d += ` 13\n${this.points[3][0]}\n23\n${this.points[3][1]}\n`;
-        // Distance point in WCS
-        d += ` 16\n${this.points[4][0]}\n26\n${this.points[4][1]}\n`;
         // Text point in OCS
-        d += ` 11\n${this.points[5][0]}\n 21\n${this.points[5][1]}\n`;
+        d += ` 11\n${this.points[2][0]}\n 21\n${this.points[2][1]}\n`;
 
         return d;
     }
