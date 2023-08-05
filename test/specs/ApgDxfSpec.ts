@@ -23,24 +23,53 @@ export class ApgDxfSpec extends Uts.ApgUtsSpecable {
   constructor(apath: string) {
     super(import.meta.url);
     this._outputPath = apath;
-  }
 
-
-  private _save(adxf: string, atestname: string, aisProd = true) {
-
-    // in production we don't have write permissions
-    if (!aisProd) {
-
-      const encoder = new TextEncoder();
-      const data = encoder.encode(adxf);
-
-      Deno.writeFileSync(this._outputPath + atestname + '.dxf', data);
+    this.flags = {
+      [this.#S01_Layers.name]: Uts.eApgUtsSpecRun.yes,
+      [this.#S02_LineStyles.name]: Uts.eApgUtsSpecRun.yes,
+      [this.#S03_DimensionsStyles.name]: Uts.eApgUtsSpecRun.yes,
+      [this.#S04_Arcs.name]: Uts.eApgUtsSpecRun.yes,
+      [this.#S05_Circles.name]: Uts.eApgUtsSpecRun.yes,
+      [this.#S06_Lines.name]: Uts.eApgUtsSpecRun.yes,
+      [this.#S07_Points.name]: Uts.eApgUtsSpecRun.yes,
+      [this.#S08_PolyLines.name]: Uts.eApgUtsSpecRun.yes,
+      [this.#S09_Labels.name]: Uts.eApgUtsSpecRun.yes,
+      [this.#S10_AlignedDims.name]: Uts.eApgUtsSpecRun.yes,
+      [this.#S11_RotatedDims.name]: Uts.eApgUtsSpecRun.yes,
+      [this.#S12_DiameterDims.name]: Uts.eApgUtsSpecRun.yes,
+      [this.#S13_RadiousDims.name]: Uts.eApgUtsSpecRun.yes,
+      [this.#S14_AngularDims.name]: Uts.eApgUtsSpecRun.yes,
+      [this.#S15_Demo.name]: Uts.eApgUtsSpecRun.yes,
     }
+  }
 
+  #dxfSpecFinalization(spec: string, dxf: ApgDxfDrawing) {
+    this.specWhen(`Trying get a dxf file content for spec [${spec}]`);
+    const dxfFileContent = dxf.toDxfString();
+    this.specWeExpect(`to get a non empy string`);
+    this.specWeGot(`${dxfFileContent.length} characters`, dxfFileContent != "");
+
+    this.#saveToFile(dxfFileContent, spec);
+    this.specResume();
   }
 
 
-  private _testLayers() {
+  #saveToFile(adxf: string, atestname: string) {
+
+    // WARNING in production we don't have write permissions
+    const encoder = new TextEncoder();
+    const data = encoder.encode(adxf);
+    const file = this._outputPath + atestname + '.dxf';
+    Deno.writeFileSync(file, data);
+  }
+
+
+  #S01_Layers() {
+
+    const spec = this.#S01_Layers.name
+    const run = this.specInit(spec);
+    if (!run) return;
+
     const dxf = new ApgDxfDrawing();
 
     dxf.newLayer('1', eApgDxfStdColors.GREEN, eApgDxfDftLineStyles.CONTINUOUS);
@@ -51,11 +80,16 @@ export class ApgDxfSpec extends Uts.ApgUtsSpecable {
     dxf.setLayer('2');
     dxf.drawLine(0, 40, 200, 40);
 
-    return dxf.toDxfString();
+    this.#dxfSpecFinalization(spec, dxf);
   }
 
 
-  private _testLineStyles() {
+  #S02_LineStyles() {
+
+    const spec = this.#S02_LineStyles.name
+    const run = this.specInit(spec);
+    if (!run) return;
+    
     const dxf = new ApgDxfDrawing();
 
     dxf.addLineStyle('MyDASHDOT', '_ . ', [0.5, -0.5, 0.0, -0.5]);
@@ -68,19 +102,29 @@ export class ApgDxfSpec extends Uts.ApgUtsSpecable {
     dxf.setLayer('2');
     dxf.drawLine(0, 0, 200, 0);
 
-    return dxf.toDxfString();
+    this.#dxfSpecFinalization(spec, dxf);
   }
 
+  #S03_DimensionsStyles() {
 
-  private _testDimStyles() {
+    const spec = this.#S03_DimensionsStyles.name
+    const run = this.specInit(spec);
+    if (!run) return;
+
     const dxf = new ApgDxfDrawing();
 
-    // @todo_9 implement this mockup
-    return dxf.toDxfString();
+    // TODO @9 implement this mockup
+
+    this.#dxfSpecFinalization(spec, dxf);
   }
 
 
-  private _testArcs() {
+  #S04_Arcs() {
+
+    const spec = this.#S04_Arcs.name
+    const run = this.specInit(spec);
+    if (!run) return;
+    
     const dxf = new ApgDxfDrawing();
 
     const maxxy = 200;
@@ -99,16 +143,21 @@ export class ApgDxfSpec extends Uts.ApgUtsSpecable {
       dxf.drawArc(x, y, r, b, e);
     }
 
-    return dxf.toDxfString();
+    this.#dxfSpecFinalization(spec, dxf);
   }
 
 
-  private _testCircles() {
+  #S05_Circles() {
+
+    const spec = this.#S05_Circles.name
+    const run = this.specInit(spec);
+    if (!run) return;
+
+    const dxf = new ApgDxfDrawing();
 
     const maxxy = 200;
     const maxn = 2000;
 
-    const dxf = new ApgDxfDrawing();
 
     dxf.newLayer('l', eApgDxfStdColors.GREEN, eApgDxfDftLineStyles.CONTINUOUS)
       .setLayer('l');
@@ -120,16 +169,21 @@ export class ApgDxfSpec extends Uts.ApgUtsSpecable {
       dxf.drawCircle(x, y, r);
     }
 
-    return dxf.toDxfString();
+    this.#dxfSpecFinalization(spec, dxf);
   }
 
 
-  private _testLines() {
+  #S06_Lines() {
+
+    const spec = this.#S06_Lines.name
+    const run = this.specInit(spec);
+    if (!run) return;
+
+    const dxf = new ApgDxfDrawing();
 
     const maxxy = 200;
     const maxn = 2000;
 
-    const dxf = new ApgDxfDrawing();
 
     dxf.newLayer('1', eApgDxfStdColors.RED, eApgDxfDftLineStyles.CONTINUOUS);
     dxf.setLayer('1');
@@ -143,16 +197,21 @@ export class ApgDxfSpec extends Uts.ApgUtsSpecable {
       dxf.drawLine(x1, y1, x2, y2);
     }
 
-    return dxf.toDxfString();
+    this.#dxfSpecFinalization(spec, dxf);
   }
 
 
-  private _testPoints() {
+  #S07_Points() {
+
+    const spec = this.#S07_Points.name
+    const run = this.specInit(spec);
+    if (!run) return;
+
+    const dxf = new ApgDxfDrawing();
 
     const maxxy = 200;
     const maxn = 2000;
 
-    const dxf = new ApgDxfDrawing();
 
     dxf.newLayer('1', eApgDxfStdColors.RED, eApgDxfDftLineStyles.CONTINUOUS);
     dxf.setLayer('1');
@@ -163,19 +222,23 @@ export class ApgDxfSpec extends Uts.ApgUtsSpecable {
       dxf.drawPoint(x1, y1);
     }
 
-    return dxf.toDxfString();
+    this.#dxfSpecFinalization(spec, dxf);
   }
 
 
-  private _testPolyLines() {
+  #S08_PolyLines() {
+
+    const spec = this.#S08_PolyLines.name
+    const run = this.specInit(spec);
+    if (!run) return;
+
+    const dxf = new ApgDxfDrawing();
 
     const maxxy = 200;
     const maxxy_2 = maxxy / 2;
     const maxn = 100;
     const maxp = 10;
 
-
-    const dxf = new ApgDxfDrawing();
 
     dxf.newLayer('1', eApgDxfStdColors.RED, eApgDxfDftLineStyles.DASHED_DOTTED_1);
     dxf.setLayer('1');
@@ -212,16 +275,21 @@ export class ApgDxfSpec extends Uts.ApgUtsSpecable {
 
     }
 
-    return dxf.toDxfString();
+    this.#dxfSpecFinalization(spec, dxf);
   }
 
 
-  private _testTextLabels() {
+  #S09_Labels() {
+
+    const spec = this.#S09_Labels.name
+    const run = this.specInit(spec);
+    if (!run) return;
+
+    const dxf = new ApgDxfDrawing();
 
     const maxxy = 200;
     const maxn = 20;
 
-    const dxf = new ApgDxfDrawing();
     dxf.newLayer('l', eApgDxfStdColors.GREEN, eApgDxfDftLineStyles.CONTINUOUS);
     dxf.setLayer('l');
 
@@ -243,15 +311,20 @@ export class ApgDxfSpec extends Uts.ApgUtsSpecable {
       dxf.drawLine(x1, y1, x2, y2);
     }
 
-    return dxf.toDxfString();
+    this.#dxfSpecFinalization(spec, dxf);
   }
 
 
-  private _testAlignedDims() {
+  #S10_AlignedDims() {
+
+    const spec = this.#S10_AlignedDims.name
+    const run = this.specInit(spec);
+    if (!run) return;
+
+    const dxf = new ApgDxfDrawing();
     const maxxy = 200;
     const maxn = 20;
 
-    const dxf = new ApgDxfDrawing();
     dxf.newLayer('l', eApgDxfStdColors.GREEN, 'CONTINUOUS');
     dxf.setLayer('l');
 
@@ -263,15 +336,20 @@ export class ApgDxfSpec extends Uts.ApgUtsSpecable {
       dxf.drawAlignedDim(x1, y1, x2, y2, 10);
     }
 
-    return dxf.toDxfString();
+    this.#dxfSpecFinalization(spec, dxf);
   }
 
 
-  private _testRotatedDims() {
+  #S11_RotatedDims() {
+
+    const spec = this.#S11_RotatedDims.name
+    const run = this.specInit(spec);
+    if (!run) return;
+
+    const dxf = new ApgDxfDrawing();
     const maxxy = 200;
     const maxn = 20;
 
-    const dxf = new ApgDxfDrawing();
     dxf.newLayer('l', eApgDxfStdColors.GREEN, 'CONTINUOUS');
     dxf.setLayer('l');
 
@@ -283,15 +361,20 @@ export class ApgDxfSpec extends Uts.ApgUtsSpecable {
       dxf.drawRotatedDim(x1, y1, x2, y2, 10);
     }
 
-    return dxf.toDxfString();
+    this.#dxfSpecFinalization(spec, dxf);
   }
 
 
-  private _testDiameterDims() {
+  #S12_DiameterDims() {
+
+    const spec = this.#S12_DiameterDims.name
+    const run = this.specInit(spec);
+    if (!run) return;
+
+    const dxf = new ApgDxfDrawing();
     const maxxy = 200;
     const maxn = 20;
 
-    const dxf = new ApgDxfDrawing();
     dxf.newLayer('1', eApgDxfStdColors.GREEN, 'CONTINUOUS');
     dxf.newLayer('2', eApgDxfStdColors.RED, 'CONTINUOUS');
     dxf.newLayer('3', eApgDxfStdColors.BLUE, 'CONTINUOUS');
@@ -318,15 +401,20 @@ export class ApgDxfSpec extends Uts.ApgUtsSpecable {
       dxf.drawDiameterDim(pc1!.x, pc1!.y, pc2!.x, pc2!.y);
     }
 
-    return dxf.toDxfString();
+    this.#dxfSpecFinalization(spec, dxf);
   }
 
 
-  private _testRadiousDims() {
+  #S13_RadiousDims() {
+
+    const spec = this.#S13_RadiousDims.name
+    const run = this.specInit(spec);
+    if (!run) return;
+
+    const dxf = new ApgDxfDrawing();
     const maxxy = 200;
     const maxn = 20;
 
-    const dxf = new ApgDxfDrawing();
     dxf.newLayer('1', eApgDxfStdColors.GREEN, 'CONTINUOUS');
     dxf.newLayer('2', eApgDxfStdColors.RED, 'CONTINUOUS');
     dxf.newLayer('3', eApgDxfStdColors.BLUE, 'CONTINUOUS');
@@ -353,10 +441,11 @@ export class ApgDxfSpec extends Uts.ApgUtsSpecable {
       dxf.drawRadiousDim(pc1!.x, pc1!.y, pc2!.x, pc2!.y);
     }
 
-    return dxf.toDxfString();
+    this.#dxfSpecFinalization(spec, dxf);
   }
 
-  private _m(arr: number[]) {
+
+  #m(arr: number[]) {
     const sorted = arr.sort((a, b) => a === b ? 0 : a < b ? -1 : 1);
     const min = sorted[0];
     const max = sorted[arr.length - 1];
@@ -364,11 +453,17 @@ export class ApgDxfSpec extends Uts.ApgUtsSpecable {
     return delta + min;
   }
 
-  private _testAngularDims() {
+
+  #S14_AngularDims() {
+
+    const spec = this.#S14_AngularDims.name
+    const run = this.specInit(spec);
+    if (!run) return;
+
+    const dxf = new ApgDxfDrawing();
     const maxxy = 200;
     const maxn = 2;
 
-    const dxf = new ApgDxfDrawing();
     dxf.newLayer('1', eApgDxfStdColors.GREEN, 'CONTINUOUS');
     dxf.newLayer('2', eApgDxfStdColors.RED, 'CONTINUOUS');
     dxf.newLayer('3', eApgDxfStdColors.BLUE, 'CONTINUOUS');
@@ -390,21 +485,26 @@ export class ApgDxfSpec extends Uts.ApgUtsSpecable {
       const xm = [x1, x2, x3, x4];
       const ym = [y1, y2, y3, y4];
 
-      const mx = this._m(xm);
-      const my = this._m(ym);
+      const mx = this.#m(xm);
+      const my = this.#m(ym);
 
       dxf.setLayer('2');
       dxf.drawAngularDim(x1, y1, x2, y2, x3, y3, x4, y4, mx, my);
     }
 
-    return dxf.toDxfString();
+    this.#dxfSpecFinalization(spec, dxf);
   }
 
 
-  demo(): string {
+  #S15_Demo() {
+
+    const spec = this.#S15_Demo.name
+    const run = this.specInit(spec);
+    if (!run) return;
+
     const dxf = new ApgDxfDrawing();
 
-    // @todo_9 add more functions in this test
+    // TODO @9 add more features in this spec
 
     dxf.drawText(10, 0, 10, 0, 'Apg Dxf Simple test');
 
@@ -416,43 +516,35 @@ export class ApgDxfSpec extends Uts.ApgUtsSpecable {
       .setLayer('2')
       .drawCircle(50, -30, 25);
 
-    return dxf.toDxfString();
+    this.#dxfSpecFinalization(spec, dxf);
   }
 
 
-  override specRunSync(arun: Uts.eApgUtsSpecRun) {
-
-    if (arun == Uts.eApgUtsSpecRun.no) {
-      return false;
-    }
-
-    const isProduction = (1) ? true : false;
+  override specExecuteSync() {
 
     Uts.ApgUtsFs.ClearFolderSync(this._outputPath);
 
-    this._save(this._testLayers(), 'DxfTestLayers', isProduction);
-    this._save(this._testLineStyles(), 'DxfTestStyles', isProduction);
-    this._save(this._testDimStyles(), 'DxfTestDimStyles', isProduction);
+    this.#S01_Layers()
+    this.#S02_LineStyles()
+    this.#S02_LineStyles();
+    this.#S03_DimensionsStyles();
 
-    this._save(this._testPoints(), 'DxfTestPoints', isProduction);
-    this._save(this._testLines(), 'DxfTestLines', isProduction);
-    this._save(this._testPolyLines(), 'DxfTestPolyLines', isProduction);
+    this.#S07_Points();
+    this.#S06_Lines();
+    this.#S08_PolyLines();
 
-    this._save(this._testArcs(), 'DxfTestArcs', isProduction);
-    this._save(this._testCircles(), 'DxfTestCircles', isProduction);
+    this.#S04_Arcs();
+    this.#S05_Circles();
 
-    this._save(this._testTextLabels(), 'DxfTestTextLabels', isProduction);
+    this.#S09_Labels();
 
-    this._save(this._testAlignedDims(), 'DxfTestAlignedDims', isProduction);
-    this._save(this._testRotatedDims(), 'DxfTestRotatedDims', isProduction);
-    this._save(this._testDiameterDims(), 'DxfTestDiameterDims', isProduction);
-    this._save(this._testRadiousDims(), 'DxfTestRadiousDims', isProduction);
-    this._save(this._testAngularDims(), 'DxfTestAngularDims', isProduction);
+    this.#S10_AlignedDims();
+    this.#S11_RotatedDims();
+    this.#S12_DiameterDims();
+    this.#S13_RadiousDims();
+    this.#S14_AngularDims();
 
-    this._save(this.demo(), 'DxfTestDemoDrawing', isProduction);
-    
-    return true;
-
+    this.#S15_Demo()
   }
 
 }
